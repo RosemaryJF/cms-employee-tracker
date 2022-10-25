@@ -21,129 +21,28 @@ const db = mysql.createConnection({
   console.log(`Connected to the Business database.`)
 );
 
-// View all departments
-app.get('/api/departments', (req, res) => {
-    const sql = `SELECT id, movie_name AS title FROM movies`;
-    
-    db.query(sql, (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-         return;
-      }
-      res.json({
-        message: 'success',
-        data: rows
-      });
-    });
-});
+// // Connect to the database
+// connection.connect((err) => {
+//   if (err) throw err;
+//   console.log(`connected as id ${connection.threadId}\n`);
+//   figlet('Employee tracker', function(err, data) {
+//     if (err) {
+//       console.log('ascii art not loaded');
+//     } else {
+//       console.log(data);
+//     }  
+//     startPrompt();
+//   });
+// });
 
-// view all roles
-app.get('/api/roles', (req, res) => {
-    const sql = `SELECT id, movie_name AS title FROM movies`;
-    
-    db.query(sql, (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-         return;
-      }
-      res.json({
-        message: 'success',
-        data: rows
-      });
-    });
-});
-  
-// View all employees
-app.get('/api/employees', (req, res) => {
-    const sql = `SELECT id, movie_name AS title FROM movies`;
-    
-    db.query(sql, (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-         return;
-      }
-      res.json({
-        message: 'success',
-        data: rows
-      });
-    });
-});
-
-// Add a department
-app.post('/api/departments', ({ body }, res) => {
-    const sql = `INSERT INTO movies (movie_name)
-      VALUES (?)`;
-    const params = [body.movie_name];
-    
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      }
-      res.json({
-        message: 'success',
-        data: body
-      });
-    });
-});
-
-// Add a role
-app.post('/api/roles', ({ body }, res) => {
-    const sql = `INSERT INTO movies (movie_name)
-      VALUES (?)`;
-    const params = [body.movie_name];
-    
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      }
-      res.json({
-        message: 'success',
-        data: body
-      });
-    });
-});
-
-// Add an employee
-app.post('/api/employees', ({ body }, res) => {
-    const sql = `INSERT INTO movies (movie_name)
-      VALUES (?)`;
-    const params = [body.movie_name];
-    
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      }
-      res.json({
-        message: 'success',
-        data: body
-      });
-    });
-});
-
-// Update an employee role
-app.put('/api/employees/:id', (req, res) => {
-    const sql = `UPDATE reviews SET review = ? WHERE id = ?`;
-    const params = [req.body.review, req.params.id];
-  
-    db.query(sql, params, (err, result) => {
-      if (err) {
-        res.status(400).json({ error: err.message });
-      } else if (!result.affectedRows) {
-        res.json({
-          message: 'Movie not found'
-        });
-      } else {
-        res.json({
-          message: 'success',
-          data: req.body,
-          changes: result.affectedRows
-        });
-      }
-    });
-});
+// function startPrompt() {
+//   const startQuestion = [{
+//     type: "list",
+//     name: "action",
+//     message: "what would you like to do?",
+//     loop: false,
+//     choices: ["View all employees", "View all roles", "View all departments", "add an employee", "add a role", "add a department", "update role for an employee", "update employee's manager", "view employees by manager", "delete a department", "delete a role", "delete an employee", "View the total utilized budget of a department", "quit"]
+//   }]
   
 
 app.listen(PORT, () => {

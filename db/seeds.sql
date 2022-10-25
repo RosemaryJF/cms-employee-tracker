@@ -9,8 +9,8 @@ SELECT * FROM departments;
 
 INSERT INTO roles (role_title, role_salary, department_id)
 VALUES
-    ('Project Manager', 175000, 1)
-    ('Lead Engineer', 150000, 1)
+    ('Project Manager', 175000, 1),
+    ('Lead Engineer', 150000, 1),
     ('Software Engineer', 120000, 1),
     ('Account Manager', 80000, 2),
     ('Accountant',120000, 2),
