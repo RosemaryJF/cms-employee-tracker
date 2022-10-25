@@ -1,3 +1,4 @@
+require('dotenv').config();
 const inquirer = require("inquirer");
 const express = require('express');
 const mysql = require('mysql2');
@@ -11,14 +12,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // Connection to database
-const db = mysql.createConnection(
-    {
-        host: 'localhost',
-        user: 'root',
-        password: 'Arapiles052021.',
-        database: 'XXXXX_db'
-    },
-    console.log(`Connected to the XXXXX database.`)
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: process.env.DB_PASSWORD,
+  database: 'business_db'
+  },
+  console.log(`Connected to the Business database.`)
 );
 
 // View all departments
