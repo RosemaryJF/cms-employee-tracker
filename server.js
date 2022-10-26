@@ -1,10 +1,10 @@
 require('dotenv').config();
 
 const inquirer = require('inquirer');
-const express = require('express');
 const mysql = require('mysql2');
 const table = require('console.table');
-var uniqid = require('uniqid');
+
+const express = require('express');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -28,7 +28,7 @@ db.connect(err => {
 });
 
 initApp = () => {
-  console.log('Ready to use the employee tracker? Let us get this thing rolling!');
+  console.log("Ready to use the employee tracker? Let's get this thing rolling!");
   runMainQuestions();
 };
 
@@ -48,10 +48,6 @@ const runMainQuestions = () => {
         'Add an employee',
         'Update an employee role',
         'Exit the Employee Tracker',
-        'Delete a department',
-        'Delete a role',
-        'Delete an employee',
-        'View total department budgets'
       ]
     }
   ])
@@ -87,24 +83,8 @@ const runMainQuestions = () => {
         updateEmployee();
       }
 
-      if (choices === 'Delete a department') {
-        deleteDepartment();
-      }
-
-      if (choices === 'Delete a role') {
-        deleteRole();
-      }
-
-      if (choices === 'Delete an employee') {
-        deleteEmployee();
-      }
-
-      if (choices === 'View total department budgets') {
-        viewTotalBudget();
-      }
-
       if (choices === 'Exit the Employee Tracker') {
-        connection.end()
+        db.end()
       };
     });
 };
@@ -127,7 +107,7 @@ const allRoles = () => {
 
   const sql = `
     SELECT roles.id, roles.role_title, roles.role_salary
-    FROM roles
+    FROM departments
     LEFT JOIN departments ON roles.department_id = department_id
   `;
 
@@ -143,16 +123,17 @@ const allEmployees = () => {
   console.log('Showing all employees...\n');
   const sql = `
     SELECT employees.id, 
-      employees.first_name, 
-      employees.last_name, 
-      roles.role_title, 
-      departments.department_name AS department,
-      roles.role_salary AS salary, 
-      CONCAT (manager.first_name, " ", manager.last_name) AS manager
-      FROM employees
-      LEFT JOIN roles ON employees.role_id = roles.id
-      LEFT JOIN departments ON roles.department_id = departments.id
-      LEFT JOIN employees manager ON employees.manager_id = manager.id`;
+    employees.first_name, 
+    employees.last_name, 
+    roles.role_title AS title, 
+    departments.department_name AS department,
+    roles.role_salary AS salary, 
+    CONCAT (manager.first_name, " ", manager.last_name) AS manager
+    FROM employees
+    LEFT JOIN roles ON employees.role_id = roles.id
+    LEFT JOIN departments ON roles.department_id = departments.id
+    LEFT JOIN employees manager ON employees.manager_id = manager.id
+  `;
 
   db.query(sql, (err, rows) => {
     if (err) throw err;
@@ -227,24 +208,25 @@ const addRole = () => {
     ];
 
     inquirer.prompt(roleQuestions)
-    .then(response => {
-      const sqlQuery = `
+      .then(response => {
+        const sqlQuery = `
         INSERT INTO roles (role_title, role_salary, department_id) 
         VALUES (?)
       `;
 
-      db.query(sqlQuery, [[response.roleTitle, response.roleSalary, response.department]], (err, res) => {
-        if (err) throw err;
-        console.log(`Successfully inserted ${response.roleTitle} role at id ${res.insertId}`);
-        allRoles();
+        db.query(sqlQuery, [[response.roleTitle, response.roleSalary, response.department]], (err, res) => {
+          if (err) throw err;
+          console.log(`Successfully inserted ${response.roleTitle} role at id ${res.insertId}`);
+          allRoles();
+        });
+      })
+      .catch(err => {
+        console.error(err);
       });
-    })
-    .catch(err => {
-      console.error(err);
-    });
   });
-}
- const addEmployee = () => {
+};
+
+const addEmployee = () => {
   //get the employees list to make choice of employee's manager
   const managerSql = `SELECT * FROM employees`
   db.query(managerSql, (err, data) => {
@@ -261,7 +243,7 @@ const addRole = () => {
         value: id
       });
     });
-    
+
     //get all the role list to make choice of employee's role
     db.query('SELECT * FROM roles', (err, data) => {
       if (err) throw err;
@@ -270,9 +252,9 @@ const addRole = () => {
         roleChoice.push({
           name: role_title,
           value: id
-          });
         });
-     
+      });
+
       let employeeQuestions = [
         {
           type: "input",
@@ -297,27 +279,89 @@ const addRole = () => {
           message: "who is the employee's manager? (can be null)"
         }
       ]
-  
+
       inquirer.prompt(employeeQuestions)
         .then(response => {
           const employeeSqlQuery = `
           INSERT INTO employees (first_name, last_name, role_id, manager_id) 
           VALUES (?)
           `;
-          let manager_id = response.manager_id !== 0? response.manager_id: null;
-          db.query(employeeSqlQuery, [[response.first_name, response.last_name, response.role_id, manager_id]], (err, res) => {
-            if (err) throw err;
-            console.log(`Successfully inserted new employee ${response.first_name} ${response.last_name} with the id of ${res.insertId}`);
-            allEmployees();
-          });
+          let manager_id = response.manager_id !== 0 ? response.manager_id : null;
+
+          db.query(employeeSqlQuery,
+            [[response.first_name, response.last_name, response.role_id, manager_id]],
+            (err, res) => {
+              if (err) throw err;
+              console.log(`Successfully inserted new employee ${response.first_name} ${response.last_name} with the id of ${res.insertId}`);
+              allEmployees();
+            });
         })
         .catch(err => {
           console.error(err);
         });
     })
   });
-}
+};
 
+// function to update an employee 
+updateEmployee = () => {
+  // get employees from employee table 
+  const employeeSql = `SELECT * FROM employees`;
+
+  db.query(employeeSql, (err, data) => {
+    if (err) throw err;
+
+    const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'name',
+        message: "Which employee would you like to update?",
+        choices: employees
+      }
+    ])
+      .then(employeeChoice => {
+        const employee = employeeChoice.name;
+        const params = [];
+        params.push(employee);
+
+        const roleSql = `SELECT * FROM roles`;
+
+        db.query(roleSql, (err, data) => {
+          if (err) throw err;
+
+          const roles = data.map(({ id, role_title }) => ({ name: role_title, value: id }));
+
+          inquirer.prompt([
+            {
+              type: 'list',
+              name: 'role',
+              message: "What is the employee's new role?",
+              choices: roles
+            }
+          ])
+            .then(roleChoice => {
+              const role = roleChoice.role;
+              params.push(role);
+
+              let employee = params[0]
+              params[0] = role
+              params[1] = employee
+
+              const updateSql = `UPDATE employees SET role_id = ? WHERE id = ?`;
+
+              db.query(updateSql, params, (err, result) => {
+                if (err) throw err;
+                console.log("Employee has been updated!");
+
+                allEmployees();
+              });
+            });
+        });
+      });
+  });
+};
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
