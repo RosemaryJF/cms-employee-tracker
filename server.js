@@ -244,6 +244,79 @@ const addRole = () => {
     });
   });
 }
+ const addEmployee = () => {
+  //get the employees list to make choice of employee's manager
+  const managerSql = `SELECT * FROM employees`
+  db.query(managerSql, (err, data) => {
+    if (err) throw err;
+    const employeeChoice = [
+      {
+        name: 'None',
+        value: 0
+      }
+    ]; //an employee could have no manager
+    data.forEach(({ first_name, last_name, id }) => {
+      employeeChoice.push({
+        name: first_name + " " + last_name,
+        value: id
+      });
+    });
+    
+    //get all the role list to make choice of employee's role
+    db.query('SELECT * FROM roles', (err, data) => {
+      if (err) throw err;
+      const roleChoice = [];
+      data.forEach(({ role_title, id }) => {
+        roleChoice.push({
+          name: role_title,
+          value: id
+          });
+        });
+     
+      let employeeQuestions = [
+        {
+          type: "input",
+          name: "first_name",
+          message: "what is the employee's first name?"
+        },
+        {
+          type: "input",
+          name: "last_name",
+          message: "what is the employee's last name?"
+        },
+        {
+          type: "list",
+          name: "role_id",
+          choices: roleChoice,
+          message: "what is the employee's role?"
+        },
+        {
+          type: "list",
+          name: "manager_id",
+          choices: employeeChoice,
+          message: "who is the employee's manager? (can be null)"
+        }
+      ]
+  
+      inquirer.prompt(employeeQuestions)
+        .then(response => {
+          const employeeSqlQuery = `
+          INSERT INTO employees (first_name, last_name, role_id, manager_id) 
+          VALUES (?)
+          `;
+          let manager_id = response.manager_id !== 0? response.manager_id: null;
+          db.query(employeeSqlQuery, [[response.first_name, response.last_name, response.role_id, manager_id]], (err, res) => {
+            if (err) throw err;
+            console.log(`Successfully inserted new employee ${response.first_name} ${response.last_name} with the id of ${res.insertId}`);
+            allEmployees();
+          });
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    })
+  });
+}
 
 
 app.listen(PORT, () => {
