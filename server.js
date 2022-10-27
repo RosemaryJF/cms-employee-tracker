@@ -107,15 +107,15 @@ const allRoles = () => {
 
   const sql = `
     SELECT roles.id, roles.role_title, roles.role_salary
-    FROM departments
+    FROM roles
     LEFT JOIN departments ON roles.department_id = department_id
   `;
 
-  db.query(sql, (err, rows) => {
+  db.query(sql, (err, data) => {
     if (err) throw err;
-    console.table(rows);
-    runMainQuestions;
-  })
+    console.table(data);
+    runMainQuestions();
+  });
 };
 
 // Function to show all the employees 
@@ -244,7 +244,7 @@ const addEmployee = () => {
       });
     });
 
-    //get all the role list to make choice of employee's role
+    //Retrieves all the roles list to make choice of employee's role
     db.query('SELECT * FROM roles', (err, data) => {
       if (err) throw err;
       const roleChoice = [];
@@ -303,9 +303,8 @@ const addEmployee = () => {
   });
 };
 
-// function to update an employee 
+//Function to update an employee 
 updateEmployee = () => {
-  // get employees from employee table 
   const employeeSql = `SELECT * FROM employees`;
 
   db.query(employeeSql, (err, data) => {
