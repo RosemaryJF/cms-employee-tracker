@@ -71,7 +71,7 @@ The user is automatically presented with the relevant table after adding/updatin
 
 ## License
 
-This application is licensed under an [MIT license](https://github.com/RosemaryJF/cms-employee-tracker/blob/main/LICENSE).
+This application is licensed under an [MIT license](https://github.com/RosemaryJF/cms-employee-tracker/blob/main/assets/images/LICENSE).
 
 ---
 
