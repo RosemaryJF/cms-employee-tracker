@@ -1,13 +1,16 @@
+-- Creation of database
 DROP DATABASE IF EXISTS business_db;
 CREATE DATABASE business_db;
 
 USE business_db;
 
+-- Creation of departments table
 CREATE TABLE departments (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   department_name VARCHAR(30) NOT NULL
 );
 
+-- Creation of roles table
 CREATE TABLE roles (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   role_title VARCHAR(30) NOT NULL,
@@ -18,6 +21,7 @@ CREATE TABLE roles (
     ON DELETE SET NULL
 );
 
+-- Creation of employees table
 CREATE TABLE employees (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(30) NOT NULL,

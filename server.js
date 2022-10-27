@@ -21,17 +21,21 @@ const db = mysql.createConnection({
   database: 'business_db'
 });
 
+// Connecting to databse
 db.connect(err => {
   if (err) throw err;
   console.log('Connected to the Business Database as ' + db.threadId);
   initApp();
 });
 
-initApp = () => {
+// Insilisation of application
+const initApp = () => {
   console.log("Ready to use the employee tracker? Let's get this thing rolling!");
   runMainQuestions();
 };
 
+// Main questions prompt function, 
+// called on throughout application
 const runMainQuestions = () => {
   inquirer.prompt([
     {
@@ -52,6 +56,8 @@ const runMainQuestions = () => {
     }
   ])
 
+  // If statements for what function is to run
+  // Depending on user choice
     .then((response) => {
       const { choices } = response;
 
@@ -89,7 +95,7 @@ const runMainQuestions = () => {
     });
 };
 
-// Function to show all the departments 
+// Function to show all departments 
 const allDepartments = () => {
   console.log('Showing all departments...\n');
   const sql = `SELECT id, department_name AS department FROM departments`;
@@ -101,7 +107,7 @@ const allDepartments = () => {
   });
 };
 
-// Function to show all the roles 
+// Function to show allroles 
 const allRoles = () => {
   console.log('Showing all roles...\n');
 
@@ -118,7 +124,7 @@ const allRoles = () => {
   });
 };
 
-// Function to show all the employees 
+// Function to show all employees 
 const allEmployees = () => {
   console.log('Showing all employees...\n');
   const sql = `
@@ -166,7 +172,7 @@ const addDepartment = () => {
       `;
       db.query(sql, res.addDepartment, (err, res) => {
         if (err) throw err;
-        console.log(res.addDepartment + ` has been added to the departments table.`);
+        console.log(`${res.addDepartment} has been added to the departments table.`);
         allDepartments();
       });
     });
@@ -174,7 +180,7 @@ const addDepartment = () => {
 
 // Function to add a department 
 const addRole = () => {
-  //get the list of all department with department_id to make the choices object list for prompt question
+  //Retrieves the list all of the departments to provide for user choice
   const existingDepartments = [];
   db.query("SELECT * FROM departments", (err, res) => {
     if (err) throw err;
@@ -187,7 +193,7 @@ const addRole = () => {
       existingDepartments.push(deptObj);
     });
 
-    //question list to get arguments for making new roles
+    //Inquirer questions to be able to create new role
     let roleQuestions = [
       {
         type: "input",
@@ -226,8 +232,9 @@ const addRole = () => {
   });
 };
 
+// Function to add an employee
 const addEmployee = () => {
-  //get the employees list to make choice of employee's manager
+  // Retrieves the list of all employees to provide for user choice of new employees manager
   const managerSql = `SELECT * FROM employees`
   db.query(managerSql, (err, data) => {
     if (err) throw err;
@@ -236,7 +243,7 @@ const addEmployee = () => {
         name: 'None',
         value: 0
       }
-    ]; //an employee could have no manager
+    ];
     data.forEach(({ first_name, last_name, id }) => {
       employeeChoice.push({
         name: first_name + " " + last_name,
@@ -244,7 +251,7 @@ const addEmployee = () => {
       });
     });
 
-    //Retrieves all the roles list to make choice of employee's role
+    //Retrieves all the roles for user to make choice of employee's role
     db.query('SELECT * FROM roles', (err, data) => {
       if (err) throw err;
       const roleChoice = [];
@@ -255,6 +262,7 @@ const addEmployee = () => {
         });
       });
 
+      // Inquirer questions for adding an employee
       let employeeQuestions = [
         {
           type: "input",
